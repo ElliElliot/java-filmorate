@@ -15,7 +15,7 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>(); //список фильмов
+    public Map<Integer, Film> films = new HashMap<>(); //список фильмов
     private static final LocalDate DATE = LocalDate.of(1895, 12, 28);
     private int id = 0;
 
@@ -43,7 +43,7 @@ public class FilmController {
         return film;
     }
 
-    private void validate(@Valid @RequestBody Film film) {
+    void validate(@Valid @RequestBody Film film) {
         if (film.getReleaseDate().isBefore(DATE)) {
             log.warn("film.getReleaseDate film release date: '{}'", film.getReleaseDate());
             throw new ValidationException("Неверная дата релиза");
