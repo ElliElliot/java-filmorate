@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Data
 @RequiredArgsConstructor
 public class Film {
-    private int id; //идентификатор фильма
+    private long id; //идентификатор фильма
     @NotBlank
     private final String name; //название фильма
     @NotBlank
@@ -22,4 +22,5 @@ public class Film {
     private final LocalDate releaseDate; //дата выхода фильма
     @Positive
     private final long duration; //длительность фильма
+    private int like;
 }
