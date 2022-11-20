@@ -1,53 +1,54 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import lombok.extern.slf4j.Slf4j;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
-@Slf4j
+@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController{
 
-    //    PUT /users/{id}/friends/{friendId} — добавление в друзья.
-//            DELETE /users/{id}/friends/{friendId} — удаление из друзей.
-//            GET /users/{id}/friends — возвращаем список пользователей, являющихся его друзьями.
-//            GET /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем.
-//            PUT /films/{id}/like/{userId} — пользователь ставит лайк фильму.
-//    DELETE /films/{id}/like/{userId} — пользователь удаляет лайк.
-//            GET /films/popular?count={count} — возвращает список из первых count фильмов по количеству лайков. Если значение параметра count не задано, верните первые 10.
-
-
-    private int id = 0;
-
+    private final FilmService filmService;
     @GetMapping
     public Collection<Film> getAllFilms() { //    получение всех фильмов.
-        return films.values();
+        return filmService.getFilms().values();
+    }
+
+    @GetMapping ("/popular?count={count}")
+    public List<Film>  getTopFilms (@RequestParam Integer count) {
+        return filmService.getTopFilms(count);
+    }
+
+    @GetMapping  ("/{id}") //возвращаем пользователя
+    public Film getFilmById (@PathVariable long id) {
+        return filmService.getFilmById(id);
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {//    добавление фильма;
-        validate(film);
-        film.setId(++id);
-        films.put(film.getId(), film);
-        log.info("Фильм {} добавлен", film.getName());
-        return film;
+        return filmService.create(film);
     }
 
     @PutMapping
-    public Film put(@Valid @RequestBody Film film) {//    обновление фильма;
-        validate(film);
-        if (!films.containsKey(film.getId())) throw new ValidationException("Такого фильма нет");
-        films.remove(film.getId());
-        films.put(film.getId(), film);
-        log.info("Информация о фильме {} изменена", film.getName());
-        return film;
+    public Film update(@Valid @RequestBody Film film) {//    обновление фильма;
+        return filmService.update(film);
+    }
+
+    @PutMapping("/{id}/like/{userId}")  //пользователь ставит лайк фильму.
+    public void addLike (@PathVariable long id, @PathVariable long userId) {
+        filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping ("films/{id}/like/{userId}") //пользователь удаляет лайк.
+    public void removeLike (@PathVariable long id, @PathVariable long userId) {
+        filmService.removeLike(id, userId);
+
     }
 }

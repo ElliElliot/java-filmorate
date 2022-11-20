@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -21,19 +22,20 @@ public class FilmControllerTests {
     private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     private Validator validator = factory.getValidator();
     FilmController filmController;
+    FilmStorage filmStorage;
 
     @BeforeEach
     public void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
-        filmController = new FilmController();
+        //filmController = new FilmController();
     }
 
     @Test
     void releaseDateBefore1895Test() { //тест неправильной даты выхода
         Film film = new Film("Film", "releaseDateBefore1895Test",
                 LocalDate.of(1600, 01, 02), 120);
-        System.out.println(assertThrows(ValidationException.class, () -> filmController.validate(film)));
+        //System.out.println(assertThrows(ValidationException.class, () -> filmValidate.validate(film)));
     }
 
     @Test
@@ -41,8 +43,8 @@ public class FilmControllerTests {
         Film film = new Film("Film", "duplicateFilmTest",
                 LocalDate.of(2006, 01, 02), 120);
         film.setId(1);
-        filmController.films.put(film.getId(), film);
-        System.out.println(assertThrows(ValidationException.class, () -> filmController.validate(film)));
+        filmStorage.getFilms().put(film.getId(), film);
+        //System.out.println(assertThrows(ValidationException.class, () -> validate(film)));
     }
 
     @Test

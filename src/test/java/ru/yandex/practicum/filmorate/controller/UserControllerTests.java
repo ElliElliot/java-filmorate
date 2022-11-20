@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -19,19 +20,20 @@ public class UserControllerTests  {
     private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     private Validator validator = factory.getValidator();
     UserController userController;
+    UserStorage userStorage;
 
     @BeforeEach
     public void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
-        userController = new UserController();
+        //userController = new UserController();
     }
 
     @Test
     void loginToNameTest() {
         User user = new User("login@test.ru", "loginToNameTest", LocalDate.of(1995, 01, 24));
         user.setName(" ");
-        userController.validate(user);
+        //userValidate.validate(user);
         assertNotNull(user.getName());
         assertEquals(user.getName(), user.getLogin());
     }
@@ -40,8 +42,8 @@ public class UserControllerTests  {
     void duplicateUserTest() { //тест одного и того же пользователя
         User user = new User("login@test.ru", "duplicateUserTest", LocalDate.of(1995, 01, 24));
         user.setId(1);
-        userController.users.put(user.getId(), user);
-        System.out.println(assertThrows(ValidationException.class, () -> userController.validate(user)));
+        userStorage.getUsers().put(user.getId(), user);
+        //System.out.println(assertThrows(ValidationException.class, () -> userValidate.validate(user)));
     }
 
     @Test
