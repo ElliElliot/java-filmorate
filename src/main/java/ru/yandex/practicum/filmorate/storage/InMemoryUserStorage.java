@@ -10,8 +10,8 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class InMemoryUserStorage implements UserStorage{ //перенесите туда всю логику хранения, обновления и поиска объектов.
-    Map<Long, User> users = new HashMap<>(); //список юзеров
+public class InMemoryUserStorage implements UserStorage{
+    Map<Long, User> users = new HashMap<>();
     long id = 0;
 
     @Override
@@ -32,28 +32,17 @@ public class InMemoryUserStorage implements UserStorage{ //перенесите 
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
             throw new ValidationException("Пользователя с таким id не существует, зарегистрируйте нового пользователя");
+        } else {
+            users.remove(user.getId());
+            users.put(user.getId(), user);
+            log.info("Информация о пользователе {} обновлена", user.getLogin());
+            return user;
         }
-        users.remove(user.getId());
-        users.put(user.getId(), user);
-        log.info("Информация о пользователе {} обновлена", user.getLogin());
-        return user;
     }
 
     @Override
     public User getUserById(long id) {
         log.info("Отправлен пользователь с id {} ", id);
         return users.get(id);
-    }
-
-    @Override
-    public void deleteUserById(long id) {
-        log.info("Удален пользователь с id {} ", id);
-        users.remove(id);
-    }
-
-    @Override
-    public void deleteAllUsers() {
-        log.info("Удалены все пользователи");
-        users.clear();
     }
 }

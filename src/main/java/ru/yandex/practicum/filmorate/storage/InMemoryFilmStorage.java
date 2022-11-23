@@ -5,18 +5,17 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private Map<Long, Film> films = new HashMap<>();
-    private FilmService filmService;
+    private Map <Long, Film> topFilms = new TreeMap<>();
 
     private int filmId = 0;
 
@@ -37,11 +36,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film update(Film film) {
         if (!films.containsKey(film.getId())) {
             throw new NotFoundException("Такого фильма нет");
+        } else {
+            films.remove(film.getId());
+            films.put(film.getId(), film);
+            log.info("Информация о фильме {} изменена", film.getName());
+            return film;
         }
-        films.remove(film.getId());
-        films.put(film.getId(), film);
-        log.info("Информация о фильме {} изменена", film.getName());
-        return film;
     }
 
     @Override
@@ -49,8 +49,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(id);
     }
 
-    @Override
-    public void deleteFilmById(long id) {
-        films.remove(id);
+    public Map<Long, Film> getTopFilms () {
+        return topFilms;
     }
 }

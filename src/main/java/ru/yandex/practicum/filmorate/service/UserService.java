@@ -22,44 +22,47 @@ public class UserService {
        return userStorage.getUsers();
     }
     public User create(User user){
-        validate(user);
+        if (!validate(user)) {
+            throw new ValidationException("Ошибка валидации");
+        }
         return userStorage.create(user);
     }
     public User update(User user){
-        validate(user);
+        if (checkUser(user.getId())==false) {
+            throw new NotFoundException("Такой фильм не существует");
+        }
+        if (!validate(user)) {
+            throw new ValidationException("Ошибка валидации");
+        }
         return userStorage.update(user);
     }
     public User getUserById(long id){
+        if (checkUser(id)==false) {
+            throw new NotFoundException("Такой фильм не существует");
+        }
         return userStorage.getUserById(id);
-    }
-    public void deleteUserById(long id){
-        userStorage.deleteUserById(id);
-    }
-    public Collection<User> findAll() {
-        return userStorage.getUsers().values();
     }
 
     public void addFriends (long id, long friendId) { //добавление в друзья.
-        if (!getUsers().containsKey(id) || !getUsers().containsKey(friendId)) {
-            throw new ValidationException("Один из пользователей не существует");
+        if (checkUser(id)==false || checkUser(friendId)==false) {
+            throw new NotFoundException("Пользователь не существует");
         }
         User user = userStorage.getUserById(id);
         User friend = userStorage.getUserById(friendId);
-        if (user.getFriendList().contains(friend.getId())) {
+        if (user.getFriendList().contains(friendId)) {
             throw new InternalException("Этот пользователь уже ваш друг");
-        } else {
+        }
             user.getFriendList().add(friend.getId());
             friend.getFriendList().add(user.getId());
             log.info("Пользователи {} и {} теперь друзья", friend.getLogin(), user.getLogin());
-        }
     }
 
     public void delFriend (long id, long friendId) { //удаление из друзей.
-        User user = userStorage.getUserById(id);
-        User friend = userStorage.getUserById(friendId);
-        if (!userStorage.getUsers().containsKey(id) || !userStorage.getUsers().containsKey(friendId)) {
+        if (checkUser(id)==false || checkUser(friendId)==false) {
             throw new NotFoundException("Пользователь с id {} не найден");
         }
+        User user = userStorage.getUserById(id);
+        User friend = userStorage.getUserById(friendId);
         if (!user.getFriendList().contains(friend.getId())) {
             throw new InternalException("Этот пользователь не является вашим другом");
         } else {
@@ -95,10 +98,10 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public void validate(User user) {
+    public boolean validate(User user) {
         if (user.getLogin().contains(" ")) {
             log.warn("Логин юзера '{}'", user.getLogin());
-            throw new ValidationException("Логин не может содержать пробелы");
+            return false;
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
@@ -107,12 +110,19 @@ public class UserService {
         for (User us : userCollection) {
             if (user.getLogin().equals(us.getLogin()) ) {
                 log.warn("user e-mail: '{}'\n us email: {}", user, us);
-                throw new ValidationException("Пользователь с таким login уже существует");
+                return false;
             } else if (user.getEmail().equals(us.getEmail())) {
                 log.warn("user e-mail: '{}'\n us email: {}", user, us);
-                throw new ValidationException("Пользователь с таким email уже существует");
-
+                return false;
             }
         }
+        return true;
+    }
+
+    private boolean checkUser (long id) {
+        if (!getUsers().containsKey(id)) {
+            return false;
+        }
+        return true;
     }
 }

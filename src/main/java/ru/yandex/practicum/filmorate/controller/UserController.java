@@ -36,17 +36,17 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public User create(@RequestBody User user) {
         return  userService.create(user);
     }
 
     @PutMapping
-    public User put(@Valid @RequestBody User user) {
+    public User put(@RequestBody User user) {
         return  userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}") //добавление в друзья.
-    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
+    public void addFriend(@Valid @PathVariable int id, @PathVariable int friendId) {
         userService.addFriends(id, friendId);
     }
 
