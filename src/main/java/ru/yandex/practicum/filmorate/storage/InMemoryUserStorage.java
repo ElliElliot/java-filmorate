@@ -31,6 +31,7 @@ public class InMemoryUserStorage implements UserStorage{
     @Override
     public User update(User user) {
         if (!users.containsKey(user.getId())) {
+            log.error("Ошибка 400 при обновлении пользователя {}", user);
             throw new ValidationException("Пользователя с таким id не существует, зарегистрируйте нового пользователя");
         } else {
             users.remove(user.getId());

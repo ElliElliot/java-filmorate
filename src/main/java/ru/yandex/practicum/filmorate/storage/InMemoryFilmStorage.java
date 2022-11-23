@@ -15,7 +15,6 @@ import java.util.TreeMap;
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private Map<Long, Film> films = new HashMap<>();
-    private Map <Long, Film> topFilms = new TreeMap<>();
 
     private int filmId = 0;
 
@@ -35,6 +34,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         if (!films.containsKey(film.getId())) {
+            log.error("Ошибка 404 при обновлении фильма {}", film);
             throw new NotFoundException("Такого фильма нет");
         } else {
             films.remove(film.getId());
@@ -47,9 +47,5 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film getFilmById(long id) {
         return films.get(id);
-    }
-
-    public Map<Long, Film> getTopFilms () {
-        return topFilms;
     }
 }
