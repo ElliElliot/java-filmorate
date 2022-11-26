@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -8,11 +9,13 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @RequiredArgsConstructor
 public class User {
-    private int id; //идентификатор пользователя
+    private long id; //идентификатор пользователя
     @NotBlank
     @Email
     private final String email; //электронная почта  пользователя
@@ -22,4 +25,6 @@ public class User {
     @NotNull
     @PastOrPresent
     private final LocalDate birthday; //дата рождения пользователя
+    @JsonIgnore
+    private Set<Long> friendList = new HashSet<>(); //список друзей
 }
