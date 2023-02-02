@@ -17,31 +17,31 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getAllUsers() {
-        return userService.getUsers().values();
+        return userService.getUsers();
     }
 
     @GetMapping  ("/{id}/friends") //возвращаем список пользователей, являющихся его друзьями.
-    public Collection<User> getFriendsUserById (@PathVariable long id) {
+    public Collection<User> getFriendsUserById (@PathVariable int id) {
         return userService.getFriendsListById(id);
     }
 
-    @GetMapping  ("/{id}") //возвращаем пользователя
-    public User getUserById (@PathVariable long id) {
+    @GetMapping  ("/{id}")
+    public User getUserById (@PathVariable int id) {
         return userService.getUserById(id);
     }
 
     @GetMapping ("/{id}/friends/common/{otherId}") //список друзей, общих с другим пользователем.
-    public List<User> getCommonFriendsList(@PathVariable long id, @PathVariable long otherId) {
+    public List<User> getCommonFriendsList(@PathVariable int id, @PathVariable int otherId) {
         return userService.getCommonFriendsList(id, otherId);
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         return  userService.create(user);
     }
 
     @PutMapping
-    public User put(@RequestBody User user) {
+    public User put(@Valid @RequestBody User user) {
         return  userService.update(user);
     }
 
