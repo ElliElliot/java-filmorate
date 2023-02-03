@@ -3,10 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -18,6 +20,7 @@ import java.util.List;
 public class FilmService {
     private static final LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
     private final  FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     public Collection<Film> getFilms(){
         log.info("Отправлен список фильмов");
@@ -25,11 +28,11 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        validate(film);
+        validateReleaseDate(film);
         return filmStorage.create(film);
     }
     public Film update(Film film) {
-        validate(film);
+        validateReleaseDate(film);
         return filmStorage.update(film);
     }
     public Film getFilmById(int id) {
@@ -42,21 +45,22 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
+        userStorage.validate(userId);
         filmStorage.addLike(filmId, userId);
         log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
     }
 
     public void removeLike(int filmId, int userId) {
-            filmStorage.removeLike(filmId, userId);
-            log.info("Пользователь {} удалил лайк к фильму {}", userId, filmId);
+        userStorage.validate(userId);
+        filmStorage.removeLike(filmId, userId);
+        log.info("Пользователь {} удалил лайк к фильму {}", userId, filmId);
     }
     public Film deleteFilmById(int id) {
         return  filmStorage.deleteFilmById(id);
     }
 
-    private void validate(Film film) {
+    private void validateReleaseDate(Film film) {
         if (film.getReleaseDate().isBefore(FIRST_FILM_DATE))
             throw new ValidationException("В то время кино еще не было");
     }
-
 }

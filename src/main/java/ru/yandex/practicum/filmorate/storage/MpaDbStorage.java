@@ -4,6 +4,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,28 @@ public class MpaDbStorage implements MpaStorage {
             throw new NotFoundException("Рейтинг не найден");
         }
         return jdbcTemplate.queryForObject(sqlQuery, this::makeMpa, id);
+    }
+
+    @Override
+    public void mpaForNewFilm (Film film) {
+        final String mpaSqlQuery = "INSERT INTO films_mpa (FILMS_ID, RATING_MPA_ID) VALUES (?, ?)";
+        jdbcTemplate.update(mpaSqlQuery, film.getId(), film.getMpa().getId());
+    }
+
+    @Override
+    public void deleteMpaFilm (int id){
+        String mpaSqlQuery = "DELETE FROM films_mpa WHERE FILMS_ID = ?";
+        jdbcTemplate.update(mpaSqlQuery, id);
+    }
+
+    @Override
+    public void updateMpaFilm (Film film){
+        if (film.getMpa() != null) {
+            final String deleteMpa = "DELETE FROM films_mpa WHERE FILMS_ID = ?";
+            final String updateMpa = "INSERT INTO films_mpa (FILMS_ID, RATING_MPA_ID) VALUES (?, ?)";
+            jdbcTemplate.update(deleteMpa, film.getId());
+            jdbcTemplate.update(updateMpa, film.getId(), film.getMpa().getId());
+        }
     }
 
     private Mpa makeMpa(ResultSet resultSet, int rowNum) throws SQLException {

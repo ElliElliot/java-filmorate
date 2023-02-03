@@ -16,4 +16,6 @@ public interface UserStorage {
     List<Integer> unfollowUser(int followerId, int followingId);
     List<User> getFriendsListById(int id);
     List<User> getCommonFriendsList(int firstId, int secondId);
+
+    void validate(int id);
 }

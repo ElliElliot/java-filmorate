@@ -90,7 +90,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Integer> followUser(int followerId, int followingId) {
-        validate(followerId, followingId);
+        validate(followerId);
+        validate(followerId);
         final String sqlForWriteQuery = "INSERT INTO friendship (FRIEND_ID, OTHER_FRIEND_ID, STATUS) " +
                 "VALUES (?, ?, ?)";
         final String sqlForUpdateQuery = "UPDATE friendship SET STATUS = ? " +
@@ -133,7 +134,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriendsList(int followerId, int followingId) {
-        validate(followingId, followerId);
+        validate(followingId);
+        validate(followerId);
         final String sqlQuery = "SELECT USER_ID, EMAIL, LOGIN, NAME, BIRTHDAY " +
                 "FROM friendship AS f " +
                 "LEFT JOIN users u ON u.USER_ID = f.OTHER_FRIEND_ID " +
@@ -155,13 +157,12 @@ public class UserDbStorage implements UserStorage {
         return new User(id, email, login, name, birthday);
     }
 
-    private void validate(int userId, int otherUserId) {
-        final String check = "SELECT * FROM USERS WHERE USER_ID = ?";
-        SqlRowSet followingRow = jdbcTemplate.queryForRowSet(check, userId);
-        SqlRowSet followerRow = jdbcTemplate.queryForRowSet(check, otherUserId);
-        if (!followingRow.next() || !followerRow.next()) {
-            log.warn("Пользователи с id {} и {} не найдены", userId, otherUserId);
-            throw new NotFoundException("Пользователи не найдены");
+    public void validate(int userId) {
+        final String checkUserQuery = "SELECT * FROM users WHERE USER_ID = ?";
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);
+        if (!userRows.next()) {
+            log.warn("пользователь c id {} не найден.", userId);
+            throw new NotFoundException("пользователь не найден");
         }
     }
 }
