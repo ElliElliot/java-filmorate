@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import org.assertj.core.api.Assertions;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
 
@@ -21,9 +23,9 @@ import java.time.LocalDate;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmStorageTest {
 
-    private final FilmDbStorage filmDbStorage;
+    private final FilmService filmService;
 
-    private final UserDbStorage userDbStorage;
+    private final UserService userService;
 
     private Film film = Film.builder()
             .name("testFilm")
@@ -36,18 +38,18 @@ public class FilmStorageTest {
 
     @Test
     void addFilmTest() {
-        filmDbStorage.create(film);
+        filmService.create(film);
         AssertionsForClassTypes.assertThat(film).extracting("id").isNotNull();
         AssertionsForClassTypes.assertThat(film).extracting("name").isNotNull();
     }
 
     @Test
     void updateFilmTest() {
-        filmDbStorage.create(film);
+        filmService.create(film);
         film.setName("testUpdateFilm");
         film.setDescription("testUpdateDescription");
-        filmDbStorage.update(film);
-        AssertionsForClassTypes.assertThat(filmDbStorage.getFilmById(film.getId()))
+        filmService.update(film);
+        AssertionsForClassTypes.assertThat(filmService.getFilmById(film.getId()))
                 .hasFieldOrPropertyWithValue("name", "testUpdateFilm")
                 .hasFieldOrPropertyWithValue("description", "testUpdateDescription");
     }
@@ -62,15 +64,15 @@ public class FilmStorageTest {
                 .mpa(new Mpa(1, "G"))
                 .genres(null)
                 .build();
-        Assertions.assertThatThrownBy(() -> filmDbStorage.update(filmForUpdate))
+        Assertions.assertThatThrownBy(() -> filmService.update(filmForUpdate))
                 .isInstanceOf(NotFoundException.class);
     }
 
     @Test
     void getFilmTest() {
-        filmDbStorage.create(film);
-        filmDbStorage.getFilmById(film.getId());
-        AssertionsForClassTypes.assertThat(filmDbStorage.getFilmById(film.getId())).hasFieldOrPropertyWithValue("id", film.getId());
+        filmService.create(film);
+        filmService.getFilmById(film.getId());
+        AssertionsForClassTypes.assertThat(filmService.getFilmById(film.getId())).hasFieldOrPropertyWithValue("id", film.getId());
     }
 
     @Test
@@ -90,14 +92,14 @@ public class FilmStorageTest {
                 .mpa(new Mpa(1, "G"))
                 .genres(null)
                 .build();
-        userDbStorage.create(user);
-        filmDbStorage.create(filmForLike);
+        userService.create(user);
+        filmService.create(filmForLike);
         System.out.println(user.getId() + " - Это UserId!");
         System.out.println(filmForLike.getId() + " - Это FilmId!");
-        filmDbStorage.addLike(filmForLike.getId(), user.getId());
-        assertThat(filmDbStorage.getTopFilms(filmForLike.getId()).isEmpty());
-        assertThat(filmDbStorage.getTopFilms(filmForLike.getId())).isNotNull();
-        Assertions.assertThat(filmDbStorage.getTopFilms(filmForLike.getId()).size() == 2);
+        filmService.addLike(filmForLike.getId(), user.getId());
+        assertThat(filmService.getTopFilms(filmForLike.getId()).isEmpty());
+        assertThat(filmService.getTopFilms(filmForLike.getId())).isNotNull();
+        Assertions.assertThat(filmService.getTopFilms(filmForLike.getId()).size() == 2);
     }
 
     @Test
@@ -117,14 +119,14 @@ public class FilmStorageTest {
                 .mpa(new Mpa(1, "G"))
                 .genres(null)
                 .build();
-        userDbStorage.create(user1);
-        filmDbStorage.create(filmForLike);
-        filmDbStorage.create(filmForLike);
-        filmDbStorage.addLike(filmForLike.getId(), user1.getId());
-        filmDbStorage.removeLike(filmForLike.getId(), user1.getId());
-        assertThat(filmDbStorage.getTopFilms(filmForLike.getId()).isEmpty());
-        assertThat(filmDbStorage.getTopFilms(filmForLike.getId())).isNotNull();
-        Assertions.assertThat(filmDbStorage.getTopFilms(filmForLike.getId()).size() == 1);
+        userService.create(user1);
+        filmService.create(filmForLike);
+        filmService.create(filmForLike);
+        filmService.addLike(filmForLike.getId(), user1.getId());
+        filmService.removeLike(filmForLike.getId(), user1.getId());
+        assertThat(filmService.getTopFilms(filmForLike.getId()).isEmpty());
+        assertThat(filmService.getTopFilms(filmForLike.getId())).isNotNull();
+        Assertions.assertThat(filmService.getTopFilms(filmForLike.getId()).size() == 1);
     }
 
     @Test
@@ -145,9 +147,9 @@ public class FilmStorageTest {
                 .mpa(new Mpa(1, "G"))
                 .genres(null)
                 .build();
-        filmDbStorage.create(film);
-        filmDbStorage.create(filmForLike);
-        filmDbStorage.create(otherFilmForLike);
+        filmService.create(film);
+        filmService.create(filmForLike);
+        filmService.create(otherFilmForLike);
         User user = User.builder()
                 .id(1)
                 .email("example@mail.mail")
@@ -169,15 +171,15 @@ public class FilmStorageTest {
                 .name("Name")
                 .birthday(LocalDate.of(2000, 1, 24))
                 .build();
-        userDbStorage.create(user);
-        userDbStorage.create(user1);
-        userDbStorage.create(user2);
-        filmDbStorage.addLike(film.getId(), user.getId());
-        filmDbStorage.addLike(filmForLike.getId(), user1.getId());
-        filmDbStorage.addLike(otherFilmForLike.getId(), user2.getId());
-        filmDbStorage.addLike(film.getId(), user1.getId());
-        filmDbStorage.addLike(film.getId(), user2.getId());
-        assertThat(filmDbStorage.getTopFilms(film.getId())).isNotNull();
-        Assertions.assertThat(filmDbStorage.getTopFilms(film.getId()).size() == 6);
+        userService.create(user);
+        userService.create(user1);
+        userService.create(user2);
+        filmService.addLike(film.getId(), user.getId());
+        filmService.addLike(filmForLike.getId(), user1.getId());
+        filmService.addLike(otherFilmForLike.getId(), user2.getId());
+        filmService.addLike(film.getId(), user1.getId());
+        filmService.addLike(film.getId(), user2.getId());
+        assertThat(filmService.getTopFilms(film.getId())).isNotNull();
+        Assertions.assertThat(filmService.getTopFilms(film.getId()).size() == 6);
     }
 }
