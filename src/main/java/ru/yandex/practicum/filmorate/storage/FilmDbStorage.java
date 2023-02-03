@@ -28,8 +28,6 @@ import java.util.Objects;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final MpaStorage mpaStorage;
-    private final GenreStorage genreStorage;
 
     @Override
     public Collection<Film> getFilms() {
@@ -51,23 +49,14 @@ public class FilmDbStorage implements FilmStorage {
             return stmt;
         }, generatedId);
         film.setId(Objects.requireNonNull(generatedId.getKey()).intValue());
-        mpaStorage.mpaForNewFilm(film);
-        genreStorage.genresForNewFilm(film);
-        film.setMpa(findMpa(film.getId()));
-        film.setGenres(findGenres(film.getId()));
         return film;
     }
 
     @Override
     public Film update(Film film) {
-        final String checkQuery = "SELECT * FROM films WHERE FILM_ID = ?";
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkQuery, film.getId());
-        validate(film.getId());
         final String sqlQuery = "UPDATE films SET NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, " +
                 "DURATION = ?" +
                 "WHERE FILM_ID = ?";
-        mpaStorage.updateMpaFilm(film);
-        genreStorage.updateGenresFilm(film);
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getDuration(), film.getId());
                 film.setMpa(findMpa(film.getId()));
@@ -90,8 +79,6 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film deleteFilmById(int id) {
         Film film = getFilmById(id);
-        genreStorage.deleteGenresFilm(id);
-        mpaStorage.deleteMpaFilm(id);
         final String sqlQuery = "DELETE FROM films WHERE FILM_ID = ?";
         jdbcTemplate.update(sqlQuery, id);
         return film;

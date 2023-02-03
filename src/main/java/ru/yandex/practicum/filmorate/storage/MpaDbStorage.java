@@ -58,6 +58,15 @@ public class MpaDbStorage implements MpaStorage {
         }
     }
 
+    @Override
+    public Mpa findMpa(int filmId) {
+        final String mpaSqlQuery = "SELECT MPA_ID, NAME " +
+                "FROM mpa " +
+                "LEFT JOIN FILMS_MPA FM ON mpa.MPA_ID = FM.RATING_MPA_ID " +
+                "WHERE FILMS_ID = ?";
+        return jdbcTemplate.queryForObject(mpaSqlQuery, this::makeMpa, filmId);
+    }
+
     private Mpa makeMpa(ResultSet resultSet, int rowNum) throws SQLException {
         int id = resultSet.getInt("MPA_ID");
         String nameMpa = resultSet.getString("NAME");

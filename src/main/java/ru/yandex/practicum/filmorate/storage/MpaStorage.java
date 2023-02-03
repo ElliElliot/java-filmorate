@@ -12,4 +12,5 @@ public interface MpaStorage {
     void mpaForNewFilm (Film film);
     void deleteMpaFilm (int id);
     void updateMpaFilm (Film film);
+    Mpa findMpa(int filmId);
 }

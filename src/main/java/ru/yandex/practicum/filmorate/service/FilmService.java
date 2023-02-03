@@ -3,11 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -21,6 +22,8 @@ public class FilmService {
     private static final LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
     private final  FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final MpaStorage mpaStorage;
+    private final GenreStorage genreStorage;
 
     public Collection<Film> getFilms(){
         log.info("Отправлен список фильмов");
@@ -29,10 +32,18 @@ public class FilmService {
 
     public Film create(Film film) {
         validateReleaseDate(film);
-        return filmStorage.create(film);
+        Film newFilm = filmStorage.create(film);
+        mpaStorage.mpaForNewFilm(film);
+        genreStorage.genresForNewFilm(film);
+        newFilm.setMpa(mpaStorage.findMpa(film.getId()));
+        newFilm.setGenres(genreStorage.findGenres(film.getId()));
+        return newFilm;
     }
     public Film update(Film film) {
         validateReleaseDate(film);
+        filmStorage.validate(film.getId());
+        mpaStorage.updateMpaFilm(film);
+        genreStorage.updateGenresFilm(film);
         return filmStorage.update(film);
     }
     public Film getFilmById(int id) {
@@ -56,6 +67,8 @@ public class FilmService {
         log.info("Пользователь {} удалил лайк к фильму {}", userId, filmId);
     }
     public Film deleteFilmById(int id) {
+        genreStorage.deleteGenresFilm(id);
+        mpaStorage.deleteMpaFilm(id);
         return  filmStorage.deleteFilmById(id);
     }
 

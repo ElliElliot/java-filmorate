@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.sql.ResultSet;
+import java.util.List;
 
 @Slf4j
 @Repository
@@ -50,6 +51,15 @@ public class GenreDbStorage implements GenreStorage {
     public void deleteGenresFilm (int id) {
         final String genresSqlQuery = "DELETE FROM film_genre WHERE FILM_ID = ?";
         jdbcTemplate.update(genresSqlQuery, id);
+    }
+
+    @Override
+    public List<Genre> findGenres(int filmId) {
+        final String genresSqlQuery = "SELECT GENRE_ID, NAME " +
+                "FROM genre " +
+                "LEFT JOIN film_genre FG on genre.GENRE_ID = FG.GENRES_ID " +
+                "WHERE FILM_ID = ?";
+        return jdbcTemplate.query(genresSqlQuery, this::makeGenre, filmId);
     }
 
     @Override
