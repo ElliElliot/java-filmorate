@@ -7,12 +7,10 @@ import java.net.http.HttpClient;
 
 @SpringBootTest
 class FilmorateApplicationTests {
-//	Проверьте, что валидация не пропускает пустые или неверно заполненные поля.
-//		Посмотрите, как контроллер реагирует на пустой запрос.\
-
 
 	@Test
 	void contextLoads() {
 		HttpClient httpClient = HttpClient.newBuilder().build();
 	}
+
 }

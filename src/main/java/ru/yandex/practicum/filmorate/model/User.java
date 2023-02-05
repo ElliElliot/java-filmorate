@@ -1,30 +1,26 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
-@Data
+@Setter
+@Getter
 @RequiredArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class User {
-    private long id; //идентификатор пользователя
+    private int id; //идентификатор пользователя
     @NotBlank
     @Email
-    private final String email; //электронная почта  пользователя
+    @NotNull
+    private String email; //электронная почта  пользователя
     @NotBlank
-    private final String login; // логин пользователя
+    @NotNull
+    private String login; // логин пользователя
     private String name; //имя пользователя для отображения
     @NotNull
     @PastOrPresent
-    private final LocalDate birthday; //дата рождения пользователя
-    @JsonIgnore
-    private Set<Long> friendList = new HashSet<>(); //список друзей
+    private LocalDate birthday; //дата рождения пользователя
 }
